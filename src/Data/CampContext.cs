@@ -21,10 +21,10 @@ namespace CoreCodeCamp.Data
     public DbSet<Speaker> Speakers { get; set; }
     public DbSet<Talk> Talks { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseSqlServer(_config.GetConnectionString("CodeCamp"));
-    }
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+    //   optionsBuilder.UseSqlServer(_config.GetConnectionString("CodeCamp"));
+    // }
 
     protected override void OnModelCreating(ModelBuilder bldr)
     {
