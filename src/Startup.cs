@@ -18,7 +18,6 @@ namespace CoreCodeCamp
 {
     public class Startup
     {
-        private string _dbConnection = null;
         private readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration)
@@ -28,8 +27,7 @@ namespace CoreCodeCamp
     
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddDbContext<CampContext>(options =>
-            //     options.UseNpgsql(_configuration.GetConnectionString("pgCodeCamp")));
+            services.AddDbContext<CampContext>();
             services.AddScoped<ICampRepository, CampRepository>();
 
             services.AddMvc()

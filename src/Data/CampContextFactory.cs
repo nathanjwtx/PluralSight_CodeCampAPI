@@ -28,9 +28,9 @@ namespace CoreCodeCamp.Data
             builder.Port = Int32.Parse(config.GetConnectionString("pgPort"));
             builder.Database = config.GetConnectionString("pgDb");
             builder.Host = config.GetConnectionString("pgHost");
-            builder.Username = config.GetConnectionString("PgUser");
+            builder.Username = config.GetConnectionString("pgUser");
             // from user-secret
-            builder.Password = config["CodeCamp"];
+            builder.Password = config.GetSection("Secrets")["CodeCamp"];
 
             var optionsBuilder = new DbContextOptionsBuilder<CampContext>();
             optionsBuilder.UseNpgsql(builder.ConnectionString);
