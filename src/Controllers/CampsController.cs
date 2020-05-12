@@ -23,7 +23,7 @@ namespace CoreCodeCamp.Controllers
             _mapper = mapper;
         }
         
-        // GET: api/CampsController
+        // GET: api/Camps
         [HttpGet]
         public async Task<ActionResult<CampModel[]>> GetCamps()
         {
@@ -32,7 +32,6 @@ namespace CoreCodeCamp.Controllers
                 var results = await _repository.GetAllCampsAsync().ConfigureAwait(false);
 
                 // CampModel[] models = _mapper.Map<CampModel[]>(results);
-
                 // return StatusCode(StatusCodes.Status200OK, models);
                 
                 // by changing to ActionResult and adding the return type, the above code can be simplified to
@@ -47,12 +46,27 @@ namespace CoreCodeCamp.Controllers
             
         }
 
-        // // GET: api/CampsController/5
-        // [HttpGet("{id}")]
-        // public async Task<IActionResult> GetOBJECT([FromRoute] int id)
-        // {
-        // }
-        //
+        // // GET: api/Camps/moniker
+        [HttpGet("{moniker}")]
+        public async Task<ActionResult<CampModel>> GetCamp(string moniker)
+        {
+            try
+            {
+                var result = await _repository.GetCampAsync(moniker).ConfigureAwait(false);
+
+                if (result == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound);
+                }
+
+                return _mapper.Map<CampModel>(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {e}");
+            }
+        }
+        
         // // POST: api/CampsController
         // [HttpPost]
         // public async Task<IActionResult> PostOBJECT([FromBody] OBJECT o)

@@ -7,7 +7,9 @@ namespace CoreCodeCamp.Data.Entities
     {
         public CampProfile()
         {
-            CreateMap<Camp, CampModel>();
+            CreateMap<Camp, CampModel>()
+                .ForMember(c => c.Venue,
+                    o => o.MapFrom(m => m.Location.VenueName));
         }
     }
 }
