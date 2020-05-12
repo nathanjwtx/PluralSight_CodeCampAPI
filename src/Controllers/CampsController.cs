@@ -7,6 +7,7 @@ using AutoMapper;
 using CoreCodeCamp.Data;
 using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace CoreCodeCamp.Controllers
 {
@@ -25,11 +26,11 @@ namespace CoreCodeCamp.Controllers
         
         // GET: api/Camps
         [HttpGet]
-        public async Task<ActionResult<CampModel[]>> GetCamps()
+        public async Task<ActionResult<CampModel[]>> GetCamps(bool includeTalks = false)
         {
             try
             {
-                var results = await _repository.GetAllCampsAsync().ConfigureAwait(false);
+                var results = await _repository.GetAllCampsAsync(includeTalks).ConfigureAwait(false);
 
                 // CampModel[] models = _mapper.Map<CampModel[]>(results);
                 // return StatusCode(StatusCodes.Status200OK, models);
@@ -60,6 +61,23 @@ namespace CoreCodeCamp.Controllers
                 }
 
                 return _mapper.Map<CampModel>(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {e}");
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<CampModel[]>> SearchByDate(DateTime theDate, bool includeTalks = false)
+        {
+            try
+            {
+                var results = await _repository.GetAllCampsByEventDate(theDate, includeTalks);
+
+                if (!results.Any()) return StatusCode(StatusCodes.Status404NotFound);
+
+                return _mapper.Map<CampModel[]>(results);
             }
             catch (Exception e)
             {
