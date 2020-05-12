@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using CoreCodeCamp.Data;
+using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace CoreCodeCamp.Controllers
@@ -13,21 +15,30 @@ namespace CoreCodeCamp.Controllers
     public class CampsController : ControllerBase
     {
         private readonly ICampRepository _repository;
+        private readonly IMapper _mapper;
 
-        public CampsController(ICampRepository repository)
+        public CampsController(ICampRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
         
         // GET: api/CampsController
         [HttpGet]
-        public async Task<IActionResult> GetCamps()
+        public async Task<ActionResult<CampModel[]>> GetCamps()
         {
             try
             {
-                var results = await _repository.GetAllCampsAsync();
+                var results = await _repository.GetAllCampsAsync().ConfigureAwait(false);
 
-                return Ok(results);
+                // CampModel[] models = _mapper.Map<CampModel[]>(results);
+
+                // return StatusCode(StatusCodes.Status200OK, models);
+                
+                // by changing to ActionResult and adding the return type, the above code can be simplified to
+                // additionally it will generate automatically the return Ok status code
+
+                return _mapper.Map<CampModel[]>(results);
             }
             catch (Exception e)
             {
