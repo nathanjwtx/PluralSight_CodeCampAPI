@@ -1,10 +1,10 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CoreCodeCamp.Migrations
 {
-    public partial class initialdb : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace CoreCodeCamp.Migrations
                 columns: table => new
                 {
                     LocationId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     VenueName = table.Column<string>(nullable: true),
                     Address1 = table.Column<string>(nullable: true),
                     Address2 = table.Column<string>(nullable: true),
@@ -33,7 +33,7 @@ namespace CoreCodeCamp.Migrations
                 columns: table => new
                 {
                     SpeakerId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
                     MiddleName = table.Column<string>(nullable: true),
@@ -53,7 +53,7 @@ namespace CoreCodeCamp.Migrations
                 columns: table => new
                 {
                     CampId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Name = table.Column<string>(nullable: true),
                     Moniker = table.Column<string>(nullable: true),
                     LocationId = table.Column<int>(nullable: true),
@@ -76,7 +76,7 @@ namespace CoreCodeCamp.Migrations
                 columns: table => new
                 {
                     TalkId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     CampId = table.Column<int>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Abstract = table.Column<string>(nullable: true),
@@ -108,12 +108,11 @@ namespace CoreCodeCamp.Migrations
             migrationBuilder.InsertData(
                 table: "Speakers",
                 columns: new[] { "SpeakerId", "BlogUrl", "Company", "CompanyUrl", "FirstName", "GitHub", "LastName", "MiddleName", "Twitter" },
-                values: new object[] { 1, "http://wildermuth.com", "Wilder Minds LLC", "http://wilderminds.com", "Shawn", "shawnwildermuth", "Wildermuth", null, "shawnwildermuth" });
-
-            migrationBuilder.InsertData(
-                table: "Speakers",
-                columns: new[] { "SpeakerId", "BlogUrl", "Company", "CompanyUrl", "FirstName", "GitHub", "LastName", "MiddleName", "Twitter" },
-                values: new object[] { 2, "http://shawnandresa.com", "Wilder Minds LLC", "http://wilderminds.com", "Resa", "resawildermuth", "Wildermuth", null, "resawildermuth" });
+                values: new object[,]
+                {
+                    { 1, "http://wildermuth.com", "Wilder Minds LLC", "http://wilderminds.com", "Shawn", "shawnwildermuth", "Wildermuth", null, "shawnwildermuth" },
+                    { 2, "http://shawnandresa.com", "Wilder Minds LLC", "http://wilderminds.com", "Resa", "resawildermuth", "Wildermuth", null, "resawildermuth" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Camps",
@@ -123,12 +122,11 @@ namespace CoreCodeCamp.Migrations
             migrationBuilder.InsertData(
                 table: "Talks",
                 columns: new[] { "TalkId", "Abstract", "CampId", "Level", "SpeakerId", "Title" },
-                values: new object[] { 1, "Entity Framework from scratch in an hour. Probably cover it all", 1, 100, 1, "Entity Framework From Scratch" });
-
-            migrationBuilder.InsertData(
-                table: "Talks",
-                columns: new[] { "TalkId", "Abstract", "CampId", "Level", "SpeakerId", "Title" },
-                values: new object[] { 2, "Thinking of good sample data examples is tiring.", 1, 200, 2, "Writing Sample Data Made Easy" });
+                values: new object[,]
+                {
+                    { 1, "Entity Framework from scratch in an hour. Probably cover it all", 1, 100, 1, "Entity Framework From Scratch" },
+                    { 2, "Thinking of good sample data examples is tiring.", 1, 200, 2, "Writing Sample Data Made Easy" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Camps_LocationId",

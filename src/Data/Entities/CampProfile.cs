@@ -9,7 +9,8 @@ namespace CoreCodeCamp.Data.Entities
         {
             CreateMap<Camp, CampModel>()
                 .ForMember(c => c.Venue,
-                    o => o.MapFrom(m => m.Location.VenueName));
+                    o => o.MapFrom(m => m.Location.VenueName))
+                .ReverseMap();
             CreateMap<Talk, TalkModel>();
             CreateMap<Speaker, SpeakerModel>();
         }
