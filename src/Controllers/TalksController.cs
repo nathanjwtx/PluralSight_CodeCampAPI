@@ -1,7 +1,5 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using CoreCodeCamp.Data;
@@ -31,12 +29,12 @@ namespace CoreCodeCamp.Controllers
         {
             try
             {
-                var talks = await _repository.GetTalksByMonikerAsync(moniker).ConfigureAwait(false);
+                var talks = await _repository.GetTalksByMonikerAsync(moniker, true).ConfigureAwait(false);
                 return _mapper.Map<TalkModel[]>(talks);
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get talk");
+                return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerMessage(e.Message));
             }
         }
 
@@ -58,14 +56,67 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get talk");
+                return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerMessage(e.Message));
             }
         }
-    //
-    //     // POST: api/Talks
-    //     [HttpPost]
-    //     public async Task<IActionResult> PostOBJECT([FromBody] OBJECT o)
-    //     {
-    //     }
+    
+        // POST: api/Talks
+        [HttpPost]
+        public async Task<ActionResult<TalkModel>> Post(string moniker, TalkModel model)
+        {
+            try
+            {
+                var camp = await _repository.GetCampAsync(moniker).ConfigureAwait(false);
+                if (camp == null)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Camp does not exist");
+                }
+
+                var talk = _mapper.Map<Talk>(model);
+                talk.Camp = camp;
+
+                if (model.Speaker == null)
+                {
+                    return BadRequest("Speaker Id is required");
+                }
+                var speaker = await _repository.GetSpeakerAsync(model.Speaker.SpeakerId).ConfigureAwait(false);
+                if (speaker == null) return BadRequest("Speaker not found");
+                talk.Speaker = speaker;
+                
+                _repository.Add(talk);
+
+                if (await _repository.SaveChangesAsync())
+                {
+                    var url = _linkGenerator.GetPathByAction(HttpContext,
+                        "GetTalk",
+                        values: new {moniker, id = talk.TalkId});
+                    
+                    return StatusCode(StatusCodes.Status201Created, new {
+                        url, talk = _mapper.Map<TalkModel>(talk)
+                    });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Camp does not exist");
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new InternalServerMessage(e.Message));
+            }
+        }
+    }
+
+    internal class InternalServerMessage
+    {
+        public string ErrorMessage { get; }
+        public string HumanMessage { get; }
+
+        public InternalServerMessage(string humanMessage)
+        {
+            ErrorMessage = "failed to get talk";
+            HumanMessage = humanMessage;
+        }
     }
 }

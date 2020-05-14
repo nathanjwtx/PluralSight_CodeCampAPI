@@ -11,8 +11,9 @@ namespace CoreCodeCamp.Data.Entities
                 .ForMember(c => c.Venue,
                     o => o.MapFrom(m => m.Location.VenueName))
                 .ReverseMap();
-            CreateMap<Talk, TalkModel>();
-            CreateMap<Speaker, SpeakerModel>();
+            CreateMap<Talk, TalkModel>()
+                .ReverseMap();
+            CreateMap<Speaker, SpeakerModel>().ReverseMap();
         }
     }
 }
