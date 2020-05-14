@@ -106,6 +106,64 @@ namespace CoreCodeCamp.Controllers
                     new InternalServerMessage(e.Message));
             }
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<TalkModel>> Put(string moniker, int id, TalkModel model)
+        {
+            try
+            {
+                var talk = await _repository.GetTalkByMonikerAsync(moniker, id, true).ConfigureAwait(false);
+                if (talk == null) return NotFound("No talk found");
+
+                if (model.Speaker != null)
+                {
+                    var speaker = await _repository.GetSpeakerAsync(model.Speaker.SpeakerId).ConfigureAwait(false);
+                    if (speaker != null)
+                    {
+                        talk.Speaker = speaker;
+                    }
+                }
+
+                _mapper.Map(model, talk);
+
+                if (await _repository.SaveChangesAsync().ConfigureAwait(false))
+                {
+                    return _mapper.Map<TalkModel>(talk);
+                }
+                else
+                {
+                    return BadRequest("Failed to update database");
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerMessage(e.Message));
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(string moniker, int id)
+        {
+            try
+            {
+                var talk = await _repository.GetTalkByMonikerAsync(moniker, id).ConfigureAwait(false);
+                if (talk == null) return NotFound("No talk found");
+                _repository.Delete(talk);
+
+                if (await _repository.SaveChangesAsync().ConfigureAwait(false))
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("Failed to delete talk");
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerMessage(e.Message));
+            }
+        }
     }
 
     internal class InternalServerMessage
