@@ -12,20 +12,16 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace CoreCodeCamp.Controllers
 {
-    // for including version in the URL
-    // [Route("api/v{version:apiVersion}/[controller]")]
-    
-    [Route("api/[controller]")]
-    [ApiVersion("1.0")]
-    [ApiVersion("1.1")]
+    [Route("api/camps")]
+    [ApiVersion("2.0")]
     [ApiController]
-    public class CampsController : ControllerBase
+    public class Camps2Controller : ControllerBase
     {
         private readonly ICampRepository _repository;
         private readonly IMapper _mapper;
         private readonly LinkGenerator _linkGenerator;
 
-        public CampsController(ICampRepository repository, IMapper mapper, LinkGenerator linkGenerator)
+        public Camps2Controller(ICampRepository repository, IMapper mapper, LinkGenerator linkGenerator)
         {
             _repository = repository;
             _mapper = mapper;
@@ -34,19 +30,19 @@ namespace CoreCodeCamp.Controllers
         
         // GET: api/Camps
         [HttpGet]
-        public async Task<ActionResult<CampModel[]>> GetCamps(bool includeTalks = false)
+        public async Task<IActionResult> GetCamps(bool includeTalks = false)
         {
             try
             {
                 var results = await _repository.GetAllCampsAsync(includeTalks).ConfigureAwait(false);
 
-                // CampModel[] models = _mapper.Map<CampModel[]>(results);
-                // return StatusCode(StatusCodes.Status200OK, models);
-                
-                // by changing to ActionResult and adding the return type, the above code can be simplified to
-                // additionally it will generate automatically the return Ok status code
+                var result = new
+                {
+                    Count = results.Length,
+                    Results = _mapper.Map<CampModel[]>(results)
+                };
 
-                return _mapper.Map<CampModel[]>(results);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -57,7 +53,6 @@ namespace CoreCodeCamp.Controllers
 
         // // GET: api/Camps/moniker
         [HttpGet("{moniker}")]
-        [MapToApiVersion("1.0")]
         public async Task<ActionResult<CampModel>> GetCamp(string moniker)
         {
             try
@@ -77,28 +72,6 @@ namespace CoreCodeCamp.Controllers
             }
         }
         
-        // // GET: api/Camps/moniker
-        [HttpGet("{moniker}")]
-        [MapToApiVersion("1.1")]
-        public async Task<ActionResult<CampModel>> GetCamp11(string moniker)
-        {
-            try
-            {
-                var result = await _repository.GetCampAsync(moniker, true).ConfigureAwait(false);
-
-                if (result == null)
-                {
-                    return StatusCode(StatusCodes.Status404NotFound);
-                }
-
-                return _mapper.Map<CampModel>(result);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {e}");
-            }
-        }
-
         [HttpGet("search")]
         public async Task<ActionResult<CampModel[]>> SearchByDate(DateTime theDate, bool includeTalks = false)
         {
